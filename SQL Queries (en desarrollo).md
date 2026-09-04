@@ -213,11 +213,96 @@ FROM dbo.olist_order_items_dataset
 ```
 
 ---
-
+ 
 ## 4. Análisis de Magnitudes
-
-*(en desarrollo)*
-
+ 
+**1. ¿Cuántos clientes hay por estado, ordenados de mayor a menor?**
+```sql
+SELECT
+	COUNT(DISTINCT customer_id) as Total_Clientes,
+	customer_state
+FROM dbo.olist_customers_dataset
+GROUP BY customer_state
+ORDER BY Total_Clientes DESC
+```
+ 
+**2. ¿Cuántos vendedores hay por estado, ordenados de mayor a menor?**
+```sql
+SELECT
+	COUNT(DISTINCT seller_id) as Total_Vendedores,
+	seller_state
+FROM dbo.olist_sellers_dataset
+GROUP BY seller_state
+ORDER BY Total_Vendedores DESC
+```
+ 
+**3. ¿Cuántos productos hay por categoría traducida (`column2`), ordenados de mayor a menor?**
+```sql
+SELECT
+	COUNT(DISTINCT p.product_id) as Número_Productos,
+	column2 as Categoría_Producto
+FROM dbo.olist_products_dataset as p
+LEFT JOIN dbo.product_category_name_translation as t
+ON p.product_category_name = t.column1
+GROUP BY column2
+ORDER BY Número_Productos DESC
+```
+ 
+**4. ¿Cuántas órdenes se han realizado cada día, ordenadas de mayor a menor?**
+```sql
+SELECT
+	COUNT(DISTINCT order_id) as Total_Órdenes,
+	DATETRUNC(day, order_purchase_timestamp) as Día
+FROM dbo.olist_orders_dataset
+GROUP BY DATETRUNC(day, order_purchase_timestamp)
+ORDER BY Total_Órdenes DESC
+```
+ 
+**5. ¿Cuál es el importe total pagado por método de pago (`payment_type`), ordenado de mayor a menor?**
+```sql
+SELECT
+	SUM(payment_value) as Total_pagado,
+	payment_type
+FROM dbo.olist_order_payments_dataset
+GROUP BY payment_type
+ORDER BY Total_pagado DESC
+```
+ 
+**6. ¿Cuál es el total de ventas (`price`) por categoría de producto (`product_category_name`), ordenado de mayor a menor?**
+```sql
+SELECT
+	SUM(o.price) as Total_VentasAC,
+	p.product_category_name
+FROM dbo.olist_order_items_dataset as o
+LEFT JOIN dbo.olist_products_dataset as p
+ON o.product_id = p.product_id
+GROUP BY p.product_category_name
+ORDER BY Total_VentasAC DESC
+```
+ 
+**7. ¿Cuál es el total de ventas (`price`) según el estado del pedido (`order_status`), ordenado de mayor a menor?**
+```sql
+SELECT
+	SUM(o2.price) as Total_Ventas_Estado_Cliente,
+	o1.order_status
+FROM dbo.olist_order_items_dataset as o2
+LEFT JOIN dbo.olist_orders_dataset as o1
+ON o1.order_id = o2.order_id
+GROUP BY o1.order_status
+ORDER BY Total_Ventas_Estado_Cliente DESC
+```
+ 
+**8. ¿Cuál es la distribución de reseñas según su puntuación (`review_score`) y su significado (`review_significado`), ordenada de mayor a menor?**
+```sql
+SELECT
+	COUNT(DISTINCT order_id) as Número_Reseñas,
+	review_score,
+	review_significado
+FROM dbo.olist_order_reviews_dataset
+GROUP BY review_score, review_significado
+ORDER BY Número_Reseñas DESC
+```
+ 
 ## 5. Análisis de Ranking (Top N)
-
+ 
 *(en desarrollo)*
